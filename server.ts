@@ -229,7 +229,7 @@ app.post("/api/teams/:id/accept", authenticate, async (req: any, res) => {
 
 // Community Posts
 app.get("/api/posts", async (req, res) => {
-  const posts = await Post.find().sort({ timestamp: -1 }).populate("author", "name");
+  const posts = await Post.find().sort({ timestamp: -1 }).populate("author comments.author", "name");
   res.json(posts);
 });
 
@@ -264,6 +264,26 @@ app.post("/api/posts/:id/like", authenticate, async (req: any, res) => {
     await post.save();
     io.emit("post_updated", post);
     res.json(post);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post("/api/posts/:id/comments", authenticate, async (req: any, res) => {
+  try {
+    const { content } = req.body;
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ error: "Post not found" });
+    
+    post.comments.push({
+      author: req.userId,
+      content,
+      timestamp: new Date()
+    });
+    await post.save();
+    const populatedPost = await post.populate("author comments.author", "name");
+    io.emit("post_updated", populatedPost);
+    res.json(populatedPost);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
@@ -332,7 +352,9 @@ app.get("/api/my-registrations", authenticate, async (req: any, res) => {
 // Seed Events if empty
 const seedEvents = async () => {
   const count = await Event.countDocuments();
-  if (count === 0) {
+  if (count < 6) {
+    // Clear existing to avoid duplicates if we're re-seeding
+    await Event.deleteMany({});
     await Event.create([
       {
         title: 'CyberSentinel Hackathon 2026',
@@ -340,9 +362,9 @@ const seedEvents = async () => {
         status: 'Live',
         date: '2026-03-15',
         description: 'Build AI-driven security tools to protect critical infrastructure.',
-        fullDescription: 'Join the most intense hackathon of the year where AI meets Cybersecurity.',
-        timeline: ['09:00 AM - Registration', '10:00 AM - Opening Ceremony'],
-        rules: ['Teams of 2-4 members', 'Open source tools only'],
+        fullDescription: 'Join the most intense hackathon of the year where AI meets Cybersecurity. This 48-hour event challenges you to create innovative solutions for real-world security problems.',
+        timeline: ['09:00 AM - Registration', '10:00 AM - Opening Ceremony', '11:00 AM - Hacking Begins', 'Day 2 04:00 PM - Final Submissions'],
+        rules: ['Teams of 2-4 members', 'Open source tools only', 'Original code required'],
         participants: 124
       },
       {
@@ -351,15 +373,201 @@ const seedEvents = async () => {
         status: 'Upcoming',
         date: '2026-03-20',
         description: 'Learn how to investigate deepfake attacks and model poisoning.',
-        fullDescription: 'A hands-on workshop focusing on the forensic analysis of neural networks.',
-        timeline: ['02:00 PM - Intro to AI Forensics'],
-        rules: ['Basic Python knowledge required'],
+        fullDescription: 'A hands-on workshop focusing on the forensic analysis of neural networks. We will cover techniques to detect adversarial examples and model tampering.',
+        timeline: ['02:00 PM - Intro to AI Forensics', '03:30 PM - Hands-on Lab', '05:00 PM - Q&A Session'],
+        rules: ['Basic Python knowledge required', 'Bring your own laptop'],
         participants: 45
+      },
+      {
+        title: 'Zero-Day CTF: AI Guarded Vault',
+        type: 'CTF',
+        status: 'Upcoming',
+        date: '2026-04-05',
+        description: 'A capture-the-flag competition where the vault is guarded by an autonomous AI agent.',
+        fullDescription: 'Test your skills against an AI-driven defense system. Can you bypass the neural firewall and retrieve the flags?',
+        timeline: ['10:00 AM - Briefing', '11:00 AM - CTF Start', '06:00 PM - Awards Ceremony'],
+        rules: ['Individual or teams of 2', 'No DDoS attacks allowed'],
+        participants: 89
+      },
+      {
+        title: 'AI Ethics & Security Summit',
+        type: 'Conference',
+        status: 'Past',
+        date: '2026-02-10',
+        description: 'A global summit discussing the intersection of AI ethics and cybersecurity.',
+        fullDescription: 'Industry leaders and researchers gathered to discuss the future of secure AI and the ethical implications of autonomous defense systems.',
+        timeline: ['09:00 AM - Keynote', '01:00 PM - Panel Discussion'],
+        rules: ['Open to all students'],
+        participants: 250
+      },
+      {
+        title: 'Bug Bounty Blitz: SRM Edition',
+        type: 'Competition',
+        status: 'Upcoming',
+        date: '2026-04-15',
+        description: 'Hunt for vulnerabilities in our internal student projects.',
+        fullDescription: 'A friendly competition to find and report bugs in various student-led projects. Prizes for the most critical vulnerabilities found!',
+        timeline: ['09:00 AM - Scope Reveal', '10:00 AM - Hunting Starts', '05:00 PM - Triage & Awards'],
+        rules: ['Responsible disclosure only', 'No destructive testing'],
+        participants: 62
+      },
+      {
+        title: 'LLM Prompt Injection Defense Lab',
+        type: 'Workshop',
+        status: 'Upcoming',
+        date: '2026-03-28',
+        description: 'Deep dive into securing Large Language Models against prompt injection.',
+        fullDescription: 'Learn the latest techniques to sanitize inputs and harden LLM-based applications against malicious prompts and jailbreaks.',
+        timeline: ['10:00 AM - Attack Vectors', '11:30 AM - Defense Strategies', '01:00 PM - Live Lab'],
+        rules: ['Laptop with Python environment', 'Basic understanding of LLMs'],
+        participants: 38
+      },
+      {
+        title: 'Cloud Security Masterclass',
+        type: 'Workshop',
+        status: 'Upcoming',
+        date: '2026-05-10',
+        description: 'Master the art of securing AWS and Azure environments.',
+        fullDescription: 'Learn how to configure IAM policies, secure S3 buckets, and implement network security groups in the cloud.',
+        timeline: ['09:00 AM - Cloud Fundamentals', '11:00 AM - IAM Best Practices', '02:00 PM - Hands-on Lab'],
+        rules: ['AWS Free Tier account required', 'Basic networking knowledge'],
+        participants: 55
+      },
+      {
+        title: 'Malware Analysis Deep Dive',
+        type: 'Workshop',
+        status: 'Upcoming',
+        date: '2026-05-22',
+        description: 'Reverse engineer real-world malware samples in a safe environment.',
+        fullDescription: 'Understand how malware works by analyzing its code and behavior. Learn to use tools like Ghidra and x64dbg.',
+        timeline: ['10:00 AM - Static Analysis', '01:00 PM - Dynamic Analysis', '03:30 PM - Report Writing'],
+        rules: ['Virtual Machine with Flare VM installed', 'Basic C/C++ knowledge'],
+        participants: 30
       }
     ]);
   }
 };
+
+// Seed Community Posts if empty
+const seedCommunity = async () => {
+  const count = await Post.countDocuments();
+  if (count === 0) {
+    // Find or create a system user for seeding
+    let systemUser = await User.findOne({ email: 'system@srmmcet.edu' });
+    if (!systemUser) {
+      systemUser = new User({
+        name: 'Neural Core',
+        email: 'system@srmmcet.edu',
+        password: 'system_secure_pass',
+        role: 'admin'
+      });
+      await systemUser.save();
+    }
+
+    const posts = [
+      {
+        author: systemUser._id,
+        title: 'Welcome to the Command Center!',
+        content: 'This is the central hub for all SRM MCET AI and Cybersecurity students. Feel free to share your research, ask questions, and collaborate on projects.',
+        comments: [
+          { author: systemUser._id, content: 'Glad to be here!', timestamp: new Date() },
+          { author: systemUser._id, content: 'The UI looks amazing, very futuristic.', timestamp: new Date() },
+          { author: systemUser._id, content: 'Can we have a dedicated channel for CTF writeups?', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'New Research: Adversarial Attacks on LLMs',
+        content: 'I recently published a paper on how to mitigate prompt injection attacks. Check it out in the resources section!',
+        comments: [
+          { author: systemUser._id, content: 'This is crucial for our upcoming project.', timestamp: new Date() },
+          { author: systemUser._id, content: 'Does it cover indirect prompt injection as well?', timestamp: new Date() },
+          { author: systemUser._id, content: 'Great work! The defense strategies are very practical.', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'Tips for the upcoming CTF',
+        content: 'Focus on your binary exploitation and web security skills. The AI guardian is particularly sensitive to buffer overflows.',
+        comments: [
+          { author: systemUser._id, content: 'Thanks for the tip! Time to brush up on GDB.', timestamp: new Date() },
+          { author: systemUser._id, content: 'Will there be any crypto challenges?', timestamp: new Date() },
+          { author: systemUser._id, content: 'I heard the AI uses reinforcement learning to adapt to our attacks.', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'Job Opportunity: Security Intern at TechCorp',
+        content: 'TechCorp is looking for a cybersecurity intern with a focus on AI security. Apply through the career portal!',
+        comments: [
+          { author: systemUser._id, content: 'Just applied! Hope to get an interview.', timestamp: new Date() },
+          { author: systemUser._id, content: 'What are the requirements for this role?', timestamp: new Date() },
+          { author: systemUser._id, content: 'Is it remote or on-site?', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'Weekly Knowledge Sharing: Zero Trust Architecture',
+        content: 'This week we are discussing Zero Trust. Why is it becoming the industry standard?',
+        comments: [
+          { author: systemUser._id, content: 'Never trust, always verify!', timestamp: new Date() },
+          { author: systemUser._id, content: 'It really helps in mitigating lateral movement within a network.', timestamp: new Date() },
+          { author: systemUser._id, content: 'The principle of least privilege is key here.', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'Call for Volunteers: CyberSentinel Hackathon',
+        content: 'We need volunteers for the upcoming hackathon! If you are interested in helping with logistics or mentoring, please sign up.',
+        comments: [
+          { author: systemUser._id, content: 'I can help with mentoring for the AI track.', timestamp: new Date() },
+          { author: systemUser._id, content: 'Count me in for logistics!', timestamp: new Date() }
+        ]
+      }
+    ];
+
+    await Post.create(posts);
+  }
+};
+
+// Seed Teams if empty
+const seedTeams = async () => {
+  const count = await Team.countDocuments();
+  if (count === 0) {
+    let systemUser = await User.findOne({ email: 'system@srmmcet.edu' });
+    if (!systemUser) return;
+
+    const teams = [
+      {
+        name: 'Cyber Phantoms',
+        description: 'An elite group of ethical hackers focused on penetration testing and vulnerability research.',
+        leader: systemUser._id,
+        members: [systemUser._id],
+        maxMembers: 5
+      },
+      {
+        name: 'Neural Defenders',
+        description: 'Specializing in AI-driven threat detection and automated incident response systems.',
+        leader: systemUser._id,
+        members: [systemUser._id],
+        maxMembers: 5
+      },
+      {
+        name: 'Binary Wizards',
+        description: 'Focused on reverse engineering, malware analysis, and low-level system security.',
+        leader: systemUser._id,
+        members: [systemUser._id],
+        maxMembers: 5
+      }
+    ];
+
+    await Team.create(teams);
+  }
+};
+
 seedEvents();
+seedCommunity();
+seedTeams();
 
 // --- Vite Middleware ---
 async function startServer() {

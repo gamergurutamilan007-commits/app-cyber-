@@ -70,25 +70,3 @@ export const Badge = ({ children, className, variant = 'blue' }: BadgeProps) => 
     </span>
   );
 };
-
-export const Logo = ({ className, size = 'md' }: { className?: string; size?: 'sm' | 'md' | 'lg' }) => {
-  const sizes = {
-    sm: 'w-8 h-8 p-1',
-    md: 'w-10 h-10 p-1.5',
-    lg: 'w-24 h-24 p-3',
-  };
-
-  return (
-    <div className={cn('bg-white rounded-lg flex items-center justify-center overflow-hidden border border-white/10', sizes[size], className)}>
-      <img 
-        src="https://raw.githubusercontent.com/SRM-MCET/Logo/main/SRM_MCET_Logo.png" 
-        alt="SRM MCET Logo" 
-        className="w-full h-full object-contain"
-        referrerPolicy="no-referrer"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/en/f/fe/SRM_University_logo.png";
-        }}
-      />
-    </div>
-  );
-};

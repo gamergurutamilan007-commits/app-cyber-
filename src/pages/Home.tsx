@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { ArrowRight, Shield, Zap, Target, Terminal } from 'lucide-react';
-import { Button, Logo } from '../components/UI';
+import { Button } from '../components/UI';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
@@ -18,7 +18,9 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             className="mb-8 relative inline-block"
           >
-            <Logo size="lg" className="shadow-[0_0_30px_rgba(255,255,255,0.1)]" />
+            <div className="w-24 h-24 rounded-3xl bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center mx-auto shadow-2xl shadow-neon-blue/20">
+              <Shield className="w-12 h-12 text-neon-blue" />
+            </div>
             <div className="absolute -inset-4 bg-neon-blue/20 blur-2xl opacity-50 -z-10" />
           </motion.div>
 
@@ -90,6 +92,23 @@ const Home = () => {
           <span className="mx-8 text-sm font-mono text-electric-purple">UPCOMING: Zero-Day CTF starting in 5 days!</span>
         </motion.div>
       </div>
+
+      {/* Stats Section */}
+      <section className="py-20 border-t border-white/5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {[
+            { label: 'Active Members', value: '1,200+' },
+            { label: 'Events Hosted', value: '45+' },
+            { label: 'Teams Formed', value: '80+' },
+            { label: 'Vulnerabilities Reported', value: '250+' },
+          ].map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="text-3xl md:text-5xl font-black text-white mb-2">{stat.value}</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-slate-500">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Mission Section */}
       <section className="py-20">

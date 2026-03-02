@@ -56,7 +56,12 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 2, name: 'Sarah "Neural" Smith', points: 2100, badges: ['🧠 AI Expert', '💻 Code Ninja'], eventsParticipated: 10 },
   { rank: 3, name: 'Jordan "Root" Miller', points: 1950, badges: ['🔥 Speedster'], eventsParticipated: 8 },
   { rank: 4, name: 'Elena "Ghost" V', points: 1800, badges: ['🕵️ Forensics'], eventsParticipated: 7 },
-  { rank: 5, name: 'Marcus "Void" Lee', points: 1650, badges: ['🛠️ Tool Builder'], eventsParticipated: 6 }
+  { rank: 5, name: 'Marcus "Void" Lee', points: 1650, badges: ['🛠️ Tool Builder'], eventsParticipated: 6 },
+  { rank: 6, name: 'Priya "Secure" K', points: 1500, badges: ['🔐 Crypto', '🛡️ Defender'], eventsParticipated: 5 },
+  { rank: 7, name: 'David "Data" W', points: 1420, badges: ['📊 Analyst'], eventsParticipated: 5 },
+  { rank: 8, name: 'Sofia "Logic" R', points: 1350, badges: ['🧩 Solver'], eventsParticipated: 4 },
+  { rank: 9, name: 'Kevin "Kernel" J', points: 1280, badges: ['🐧 Linux Guru'], eventsParticipated: 4 },
+  { rank: 10, name: 'Aisha "Cloud" M', points: 1200, badges: ['☁️ Cloud Sec'], eventsParticipated: 3 }
 ];
 
 export const INITIAL_USER: UserProfile = {

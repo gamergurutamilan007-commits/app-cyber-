@@ -16,6 +16,108 @@ interface Post {
   timestamp: string;
 }
 
+const PostCard = ({ post, user, onLike, onComment }: { post: Post; user: any; onLike: (id: string) => void; onComment: (id: string, content: string) => void }) => {
+  const [showComments, setShowComments] = useState(false);
+  const [commentInput, setCommentInput] = useState('');
+
+  return (
+    <Card className="hover:border-white/20 transition-all border-white/5 bg-dark-bg/20">
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm font-bold text-neon-blue">
+            {post.author.name.charAt(0)}
+          </div>
+          <div>
+            <p className="text-sm font-bold">{post.author.name}</p>
+            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-tighter">
+              {formatDistanceToNow(new Date(post.timestamp))} ago
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <h3 className="text-xl font-bold mb-3">{post.title}</h3>
+      <p className="text-slate-400 text-sm leading-relaxed mb-6">{post.content}</p>
+
+      <div className="flex items-center gap-6 border-t border-white/5 pt-4">
+        <button 
+          onClick={() => onLike(post._id)}
+          disabled={!user}
+          className={cn(
+            "flex items-center gap-2 text-sm transition-colors group",
+            user && post.likes.includes(user.id) ? "text-rose-500" : "text-slate-400 hover:text-rose-500"
+          )}
+        >
+          <Heart className={cn("w-4 h-4", user && post.likes.includes(user.id) && "fill-rose-500")} />
+          <span>{post.likes.length}</span>
+        </button>
+        <button 
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center gap-2 text-sm text-slate-400 hover:text-neon-blue transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" />
+          <span>{post.comments.length} Comments</span>
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showComments && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-6 space-y-4 pt-4 border-t border-white/5">
+              {post.comments.map((comment, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {comment.author.name.charAt(0)}
+                  </div>
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold">{comment.author.name}</span>
+                      <span className="text-[10px] text-slate-500">{formatDistanceToNow(new Date(comment.timestamp))} ago</span>
+                    </div>
+                    <p className="text-xs text-slate-400">{comment.content}</p>
+                  </div>
+                </div>
+              ))}
+              
+              {user && (
+                <div className="flex gap-3 pt-2">
+                  <div className="w-6 h-6 rounded-lg bg-neon-blue/10 flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {user.name.charAt(0)}
+                  </div>
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      onComment(post._id, commentInput);
+                      setCommentInput('');
+                    }}
+                    className="flex-grow flex gap-2"
+                  >
+                    <input
+                      type="text"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
+                      placeholder="Write a comment..."
+                      className="flex-grow bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs focus:outline-none focus:border-neon-blue"
+                    />
+                    <button type="submit" className="p-1 text-neon-blue hover:bg-neon-blue/10 rounded transition-colors">
+                      <Send className="w-3 h-3" />
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Card>
+  );
+};
+
 const Community = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -82,6 +184,19 @@ const Community = () => {
     }
   };
 
+  const handleAddComment = async (postId: string, content: string) => {
+    if (!content.trim() || !user) return;
+    try {
+      await fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-12">
@@ -141,42 +256,12 @@ const Community = () => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 layout
               >
-                <Card className="hover:border-white/20 transition-all border-white/5 bg-dark-bg/20">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm font-bold text-neon-blue">
-                        {post.author.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">{post.author.name}</p>
-                        <p className="text-[10px] text-slate-500 font-mono uppercase tracking-tighter">
-                          {formatDistanceToNow(new Date(post.timestamp))} ago
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl font-bold mb-3">{post.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed mb-6">{post.content}</p>
-
-                  <div className="flex items-center gap-6 border-t border-white/5 pt-4">
-                    <button 
-                      onClick={() => handleLike(post._id)}
-                      disabled={!user}
-                      className={cn(
-                        "flex items-center gap-2 text-sm transition-colors group",
-                        user && post.likes.includes(user.id) ? "text-rose-500" : "text-slate-400 hover:text-rose-500"
-                      )}
-                    >
-                      <Heart className={cn("w-4 h-4", user && post.likes.includes(user.id) && "fill-rose-500")} />
-                      <span>{post.likes.length}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-sm text-slate-400 hover:text-neon-blue transition-colors">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>{post.comments.length} Comments</span>
-                    </button>
-                  </div>
-                </Card>
+                <PostCard 
+                  post={post} 
+                  user={user} 
+                  onLike={handleLike} 
+                  onComment={handleAddComment} 
+                />
               </motion.div>
             ))}
           </AnimatePresence>

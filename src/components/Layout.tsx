@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Shield, LayoutDashboard, Calendar, Users, Trophy, MessageSquare, User, Bot, LogOut } from 'lucide-react';
-import { cn, Button, Logo } from './UI';
+import { cn, Button } from './UI';
 import { useAuth } from '../contexts/AuthContext';
 
 const NAV_ITEMS = [
@@ -28,7 +28,9 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <Logo className="group-hover:bg-neon-blue/10 transition-colors" />
+              <div className="w-10 h-10 rounded-xl bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center group-hover:bg-neon-blue/20 transition-all">
+                <Shield className="w-6 h-6 text-neon-blue" />
+              </div>
               <div className="absolute -inset-1 bg-neon-blue/20 blur opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
             </div>
             <div className="flex flex-col">
@@ -99,7 +101,9 @@ export const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center gap-3 mb-4">
-            <Logo />
+            <div className="w-10 h-10 rounded-xl bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center">
+              <Shield className="w-6 h-6 text-neon-blue" />
+            </div>
             <span className="font-bold text-lg tracking-tight">SRM MCET AI × CYBER</span>
           </div>
           <p className="text-slate-400 max-w-sm text-sm leading-relaxed">

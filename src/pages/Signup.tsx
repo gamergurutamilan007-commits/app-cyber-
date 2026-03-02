@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, Lock, Mail, User, Loader2 } from 'lucide-react';
-import { Button, Card, Logo } from '../components/UI';
+import { Button, Card } from '../components/UI';
 import { useAuth } from '../contexts/AuthContext';
 
 const Signup = () => {
@@ -31,7 +31,9 @@ const Signup = () => {
     <div className="max-w-md mx-auto px-4 py-20">
       <Card className="border-electric-purple/20">
         <div className="text-center mb-8">
-          <Logo size="lg" className="mx-auto mb-4 shadow-[0_0_20px_rgba(255,255,255,0.05)]" />
+          <div className="w-20 h-20 rounded-2xl bg-electric-purple/10 border border-electric-purple/20 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-electric-purple/10">
+            <Shield className="w-10 h-10 text-electric-purple" />
+          </div>
           <h1 className="text-2xl font-bold">Register Identity</h1>
           <p className="text-slate-400 text-sm">Join the AI × Cyber Command.</p>
         </div>
