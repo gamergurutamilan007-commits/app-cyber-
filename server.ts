@@ -347,6 +347,16 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
+// Events API
+app.get("/api/events", async (req, res) => {
+  try {
+    const events = await Event.find().sort({ date: 1 });
+    res.json(events);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/events/:id/register", authenticate, async (req: any, res) => {
   try {
     const { department, year, phone, motivation } = req.body;
@@ -531,6 +541,50 @@ const seedEvents = async () => {
         timeline: ['10:00 AM - Opening Remarks', '11:00 AM - Session 1: Autonomous Systems', '02:00 PM - Session 2: Cyber Warfare'],
         rules: ['Registration required'],
         participants: 150
+      },
+      {
+        title: 'Zero-Day Exploit Development',
+        type: 'Workshop',
+        status: 'Upcoming',
+        date: '2026-10-12',
+        description: 'Advanced workshop on finding and exploiting zero-day vulnerabilities.',
+        fullDescription: 'Deep dive into memory corruption, ROP chains, and bypassing modern exploit mitigations.',
+        timeline: ['09:00 AM - Memory Management', '11:00 AM - Fuzzing Techniques', '02:00 PM - Exploit Lab'],
+        rules: ['Advanced C and Assembly knowledge', 'Laptop with Linux required'],
+        participants: 20
+      },
+      {
+        title: 'Global Cyber Defense Hackathon',
+        type: 'Hackathon',
+        status: 'Upcoming',
+        date: '2026-11-01',
+        description: 'Build the next generation of intrusion detection systems.',
+        fullDescription: 'A 48-hour hackathon to create innovative solutions for protecting critical infrastructure.',
+        timeline: ['Friday 06:00 PM - Kickoff', 'Saturday - Hacking', 'Sunday 02:00 PM - Demos'],
+        rules: ['Teams of 2-4', 'Must use open-source technologies'],
+        participants: 120
+      },
+      {
+        title: 'Quantum Cryptography CTF',
+        type: 'CTF',
+        status: 'Upcoming',
+        date: '2026-12-15',
+        description: 'Solve challenges related to post-quantum cryptographic algorithms.',
+        fullDescription: 'Test your knowledge of lattice-based and code-based cryptography in this unique CTF.',
+        timeline: ['12:00 PM - Challenges Released', '12:00 PM (Next Day) - End'],
+        rules: ['Individual or Teams of 2', 'Math background recommended'],
+        participants: 65
+      },
+      {
+        title: 'AI Security Summit 2027',
+        type: 'Conference',
+        status: 'Upcoming',
+        date: '2027-01-20',
+        description: 'The premier event for AI security researchers and practitioners.',
+        fullDescription: 'Two days of talks, workshops, and networking focused on securing the AI lifecycle.',
+        timeline: ['Day 1: Keynotes & Research Tracks', 'Day 2: Workshops & Industry Panels'],
+        rules: ['Early bird registration open'],
+        participants: 500
       }
     ]);
   }
@@ -610,6 +664,26 @@ const seedCommunity = async () => {
         comments: [
           { author: systemUser._id, content: 'I can help with mentoring for the AI track.', timestamp: new Date() },
           { author: systemUser._id, content: 'Count me in for logistics!', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'New Tool: AI-Powered Vulnerability Scanner',
+        content: 'I developed a simple tool that uses GPT-4 to scan for common web vulnerabilities. Check out the repo!',
+        comments: [
+          { author: systemUser._id, content: 'This is amazing! Can it detect SQLi?', timestamp: new Date() },
+          { author: systemUser._id, content: 'Be careful with false positives.', timestamp: new Date() },
+          { author: systemUser._id, content: 'I tried it on a test site, it found a few XSS!', timestamp: new Date() }
+        ]
+      },
+      {
+        author: systemUser._id,
+        title: 'Discussion: Ethical Implications of AI in Cyberwarfare',
+        content: 'What are your thoughts on autonomous cyber weapons? Should there be international regulations?',
+        comments: [
+          { author: systemUser._id, content: 'Absolutely, we need a Geneva Convention for cyberspace.', timestamp: new Date() },
+          { author: systemUser._id, content: 'It is a double-edged sword.', timestamp: new Date() },
+          { author: systemUser._id, content: 'The attribution problem makes regulation difficult.', timestamp: new Date() }
         ]
       }
     ];
@@ -691,6 +765,11 @@ async function startServer() {
     const isProduction = process.env.NODE_ENV === "production";
     console.log(`Starting server in ${isProduction ? 'production' : 'development'} mode...`);
     
+    // API 404 handler
+    app.all("/api/*", (req, res) => {
+      res.status(404).json({ error: `API route ${req.method} ${req.url} not found` });
+    });
+
     if (!isProduction) {
       console.log("Initializing Vite dev server...");
       const vite = await createViteServer({

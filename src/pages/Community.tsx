@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, Heart, MessageCircle, Send, Trash2, Shield, User, Loader2 } from 'lucide-react';
+import { MessageSquare, Heart, MessageCircle, Send, Trash2, Shield, User, Loader2, Clock } from 'lucide-react';
 import { Button, Card, Badge, cn } from '../components/UI';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,42 +21,47 @@ const PostCard = ({ post, user, onLike, onComment }: { post: Post; user: any; on
   const [commentInput, setCommentInput] = useState('');
 
   return (
-    <Card className="hover:border-white/20 transition-all border-white/5 bg-dark-bg/20">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm font-bold text-neon-blue">
-            {post.author.name.charAt(0)}
+    <Card glow variant="cyan" className="hover:border-neon-cyan/30 transition-all border-white/5 bg-dark-surface/40 backdrop-blur-xl relative overflow-hidden group">
+      <div className="absolute top-0 left-0 w-1 h-12 bg-neon-cyan shadow-[0_0_10px_rgba(0,245,255,0.5)]" />
+      
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center text-lg font-black text-neon-cyan shadow-[0_0_15px_rgba(0,245,255,0.1)] group-hover:scale-110 transition-transform relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+            {post.author?.name?.charAt(0) || '?'}
           </div>
           <div>
-            <p className="text-sm font-bold">{post.author.name}</p>
-            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-tighter">
+            <p className="text-sm font-black tracking-tight text-text-primary">{post.author.name}</p>
+            <p className="text-[10px] text-text-secondary font-mono uppercase tracking-[0.2em] flex items-center gap-2">
+              <Clock className="w-3 h-3" />
               {formatDistanceToNow(new Date(post.timestamp))} ago
             </p>
           </div>
         </div>
+        <Badge variant="cyan" className="text-[8px] font-mono tracking-widest">BROADCAST_ID: {post._id.slice(-6).toUpperCase()}</Badge>
       </div>
 
-      <h3 className="text-xl font-bold mb-3">{post.title}</h3>
-      <p className="text-slate-400 text-sm leading-relaxed mb-6">{post.content}</p>
+      <h3 className="text-2xl font-black mb-4 tracking-tight group-hover:text-neon-cyan transition-colors">{post.title}</h3>
+      <p className="text-text-secondary text-sm leading-relaxed mb-8 font-mono opacity-80">{post.content}</p>
 
-      <div className="flex items-center gap-6 border-t border-white/5 pt-4">
+      <div className="flex items-center gap-8 border-t border-white/5 pt-6">
         <button 
           onClick={() => onLike(post._id)}
           disabled={!user}
           className={cn(
-            "flex items-center gap-2 text-sm transition-colors group",
-            user && post.likes.includes(user.id) ? "text-rose-500" : "text-slate-400 hover:text-rose-500"
+            "flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all group/btn",
+            user && post.likes.includes(user.id) ? "text-soft-red drop-shadow-[0_0_5px_rgba(255,77,77,0.5)]" : "text-text-secondary hover:text-soft-red"
           )}
         >
-          <Heart className={cn("w-4 h-4", user && post.likes.includes(user.id) && "fill-rose-500")} />
-          <span>{post.likes.length}</span>
+          <Heart className={cn("w-4 h-4 transition-transform group-hover/btn:scale-125", user && post.likes.includes(user.id) && "fill-soft-red")} />
+          <span>{post.likes.length} UPLINKS</span>
         </button>
         <button 
           onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-2 text-sm text-slate-400 hover:text-neon-blue transition-colors"
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary hover:text-neon-cyan transition-all group/btn"
         >
-          <MessageCircle className="w-4 h-4" />
-          <span>{post.comments.length} Comments</span>
+          <MessageCircle className="w-4 h-4 transition-transform group-hover/btn:scale-125" />
+          <span>{post.comments.length} COMMS</span>
         </button>
       </div>
 
@@ -68,26 +73,26 @@ const PostCard = ({ post, user, onLike, onComment }: { post: Post; user: any; on
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-6 space-y-4 pt-4 border-t border-white/5">
+            <div className="mt-8 space-y-6 pt-6 border-t border-white/5">
               {post.comments.map((comment, i) => (
-                <div key={i} className="flex gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-bold shrink-0">
-                    {comment.author.name.charAt(0)}
+                <div key={i} className="flex gap-4 group/comment">
+                  <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black shrink-0 group-hover/comment:border-neon-cyan/30 transition-colors">
+                    {comment.author?.name?.charAt(0) || '?'}
                   </div>
-                  <div className="flex-grow">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold">{comment.author.name}</span>
-                      <span className="text-[10px] text-slate-500">{formatDistanceToNow(new Date(comment.timestamp))} ago</span>
+                  <div className="flex-grow bg-white/5 p-4 rounded-2xl border border-white/5 group-hover/comment:border-white/10 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-black tracking-tight text-text-primary">{comment.author.name}</span>
+                      <span className="text-[9px] text-text-secondary font-mono uppercase tracking-widest">{formatDistanceToNow(new Date(comment.timestamp))} ago</span>
                     </div>
-                    <p className="text-xs text-slate-400">{comment.content}</p>
+                    <p className="text-xs text-text-secondary font-mono leading-relaxed">{comment.content}</p>
                   </div>
                 </div>
               ))}
               
               {user && (
-                <div className="flex gap-3 pt-2">
-                  <div className="w-6 h-6 rounded-lg bg-neon-blue/10 flex items-center justify-center text-[10px] font-bold shrink-0">
-                    {user.name.charAt(0)}
+                <div className="flex gap-4 pt-4">
+                  <div className="w-8 h-8 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center text-[10px] font-black shrink-0 text-neon-cyan">
+                    {user?.name?.charAt(0) || '?'}
                   </div>
                   <form 
                     onSubmit={(e) => {
@@ -95,17 +100,17 @@ const PostCard = ({ post, user, onLike, onComment }: { post: Post; user: any; on
                       onComment(post._id, commentInput);
                       setCommentInput('');
                     }}
-                    className="flex-grow flex gap-2"
+                    className="flex-grow flex gap-3"
                   >
                     <input
                       type="text"
                       value={commentInput}
                       onChange={(e) => setCommentInput(e.target.value)}
-                      placeholder="Write a comment..."
-                      className="flex-grow bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs focus:outline-none focus:border-neon-blue"
+                      placeholder="Input encrypted response..."
+                      className="flex-grow bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-mono focus:outline-none focus:border-neon-cyan focus:bg-neon-cyan/5 transition-all text-text-primary"
                     />
-                    <button type="submit" className="p-1 text-neon-blue hover:bg-neon-blue/10 rounded transition-colors">
-                      <Send className="w-3 h-3" />
+                    <button type="submit" className="p-2 bg-neon-cyan/10 text-neon-cyan hover:bg-neon-cyan/20 rounded-xl transition-all border border-neon-cyan/20">
+                      <Send className="w-4 h-4" />
                     </button>
                   </form>
                 </div>
@@ -128,8 +133,10 @@ const Community = () => {
   const fetchPosts = async () => {
     try {
       const res = await fetch('/api/posts');
-      const data = await res.json();
-      setPosts(data);
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -199,59 +206,66 @@ const Community = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-2">Community <span className="text-neon-blue">Feed</span></h1>
-        <p className="text-slate-400">Share knowledge, ask questions, and connect with fellow researchers.</p>
+      <div className="mb-16">
+        <Badge variant="cyan" className="mb-4">Neural Network</Badge>
+        <h1 className="text-5xl font-black tracking-tighter mb-2">COMMUNITY <span className="text-neon-cyan drop-shadow-[0_0_10px_rgba(0,245,255,0.3)]">FEED</span></h1>
+        <p className="text-text-secondary font-mono text-sm">&gt; Share intelligence, ask questions, and connect with fellow researchers.</p>
       </div>
 
       {/* Post Input */}
       {user ? (
-        <Card className="mb-12 border-neon-blue/20 bg-dark-bg/40 backdrop-blur-xl">
-          <form onSubmit={handleAddPost} className="space-y-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-neon-blue/10 flex items-center justify-center border border-neon-blue/20">
-                <User className="w-5 h-5 text-neon-blue" />
+        <Card glow variant="cyan" className="mb-16 border-neon-cyan/20 bg-dark-surface/40 backdrop-blur-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-neon-cyan/5 rounded-full blur-3xl -mr-16 -mt-16" />
+          <form onSubmit={handleAddPost} className="space-y-6 relative z-10">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="w-12 h-12 rounded-2xl bg-neon-cyan/10 flex items-center justify-center border border-neon-cyan/30 shadow-[0_0_15px_rgba(0,245,255,0.1)]">
+                <User className="w-6 h-6 text-neon-cyan" />
               </div>
-              <span className="font-bold text-sm">{user.name}</span>
+              <div>
+                <span className="text-sm font-black tracking-tight text-text-primary">{user.name}</span>
+                <p className="text-[10px] text-neon-cyan font-mono uppercase tracking-widest">Authorized User</p>
+              </div>
             </div>
             <input
               type="text"
               value={newPost.title}
               onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm font-bold focus:outline-none focus:border-neon-blue transition-colors"
-              placeholder="Post Title"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm font-black tracking-tight focus:outline-none focus:border-neon-cyan focus:bg-neon-cyan/5 transition-all text-text-primary"
+              placeholder="INTEL DESIGNATION (TITLE)"
             />
             <textarea
               value={newPost.content}
               onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-neon-blue transition-colors h-32 resize-none"
-              placeholder="What's on your mind, researcher?"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-sm font-mono focus:outline-none focus:border-neon-cyan focus:bg-neon-cyan/5 transition-all text-text-primary h-40 resize-none"
+              placeholder="What intelligence do you wish to broadcast, researcher?"
             />
             <div className="flex justify-end">
-              <Button type="submit" disabled={isSubmitting} className="gap-2">
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Broadcast Post</>}
+              <Button type="submit" variant="cyan" disabled={isSubmitting} className="gap-3 uppercase tracking-[0.3em] text-xs py-3 px-8 shadow-[0_0_20px_rgba(0,245,255,0.2)]">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> BROADCAST INTEL</>}
               </Button>
             </div>
           </form>
         </Card>
       ) : (
-        <Card className="mb-12 text-center py-8 border-white/5">
-          <p className="text-slate-400 text-sm">Please login to join the conversation.</p>
+        <Card className="mb-16 text-center py-12 border-white/5 glass-panel">
+          <Shield className="w-12 h-12 text-text-secondary/20 mx-auto mb-4" />
+          <p className="text-text-secondary font-mono text-sm uppercase tracking-widest">Authentication required to join the neural network.</p>
         </Card>
       )}
 
       {/* Feed */}
-      <div className="space-y-6">
+      <div className="space-y-10">
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-neon-blue animate-spin" />
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <div className="w-12 h-12 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin shadow-[0_0_15px_rgba(0,245,255,0.2)]" />
+            <p className="text-neon-cyan font-mono text-xs animate-pulse">DECRYPTING FEED...</p>
           </div>
         ) : (
           <AnimatePresence>
             {posts.map((post) => (
               <motion.div
                 key={post._id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 layout
