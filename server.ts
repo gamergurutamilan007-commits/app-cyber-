@@ -6,10 +6,20 @@ import bcrypt from "bcryptjs";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "cyber_secret_key";
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/cyber_cmd";
@@ -29,6 +39,22 @@ const UserSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
   badges: [String],
   eventsParticipated: { type: Number, default: 0 },
+  github: { type: String, default: "" },
+  linkedin: { type: String, default: "" },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+});
+
+const PostSchema = new mongoose.Schema({
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  comments: [{
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    content: String,
+    timestamp: { type: Date, default: Date.now }
+  }],
+  timestamp: { type: Date, default: Date.now }
 });
 
 const TeamSchema = new mongoose.Schema({
@@ -70,6 +96,7 @@ const User = mongoose.model("User", UserSchema);
 const Team = mongoose.model("Team", TeamSchema);
 const Event = mongoose.model("Event", EventSchema);
 const Registration = mongoose.model("Registration", RegistrationSchema);
+const Post = mongoose.model("Post", PostSchema);
 
 // Middleware
 app.use(express.json());
@@ -127,6 +154,18 @@ app.post("/api/auth/logout", (req, res) => {
 app.get("/api/auth/me", authenticate, async (req: any, res) => {
   const user = await User.findById(req.userId).select("-password");
   res.json(user);
+});
+
+app.put("/api/auth/profile", authenticate, async (req: any, res) => {
+  try {
+    const { name, bio, skills, github, linkedin } = req.body;
+    const user = await User.findByIdAndUpdate(req.userId, {
+      name, bio, skills, github, linkedin
+    }, { new: true }).select("-password");
+    res.json(user);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Teams
@@ -188,10 +227,82 @@ app.post("/api/teams/:id/accept", authenticate, async (req: any, res) => {
   }
 });
 
-// Events
-app.get("/api/events", async (req, res) => {
-  const events = await Event.find();
-  res.json(events);
+// Community Posts
+app.get("/api/posts", async (req, res) => {
+  const posts = await Post.find().sort({ timestamp: -1 }).populate("author", "name");
+  res.json(posts);
+});
+
+app.post("/api/posts", authenticate, async (req: any, res) => {
+  try {
+    const { title, content } = req.body;
+    const post = new Post({
+      author: req.userId,
+      title,
+      content
+    });
+    await post.save();
+    const populatedPost = await post.populate("author", "name");
+    io.emit("new_post", populatedPost);
+    res.json(populatedPost);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post("/api/posts/:id/like", authenticate, async (req: any, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ error: "Post not found" });
+    
+    const index = post.likes.indexOf(req.userId);
+    if (index === -1) {
+      post.likes.push(req.userId);
+    } else {
+      post.likes.splice(index, 1);
+    }
+    await post.save();
+    io.emit("post_updated", post);
+    res.json(post);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin Team Approval (Requested by user)
+app.post("/api/admin/teams/:id/approve", authenticate, async (req: any, res) => {
+  try {
+    const admin = await User.findById(req.userId);
+    if (!admin || admin.role !== 'admin') {
+      return res.status(403).json({ error: "Only admins can approve teams" });
+    }
+    const team = await Team.findByIdAndUpdate(req.params.id, { isApproved: true }, { new: true });
+    res.json({ message: "Team approved", team });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin Team Member Approval (Requested by user)
+app.post("/api/admin/teams/:id/accept-member", authenticate, async (req: any, res) => {
+  try {
+    const admin = await User.findById(req.userId);
+    if (!admin || admin.role !== 'admin') {
+      return res.status(403).json({ error: "Only admins can accept members" });
+    }
+    const { userId } = req.body;
+    const team = await Team.findById(req.params.id);
+    if (!team) return res.status(404).json({ error: "Team not found" });
+    
+    team.requests = team.requests.filter(id => id.toString() !== userId);
+    if (!team.members.includes(userId)) {
+      team.members.push(userId);
+    }
+    await team.save();
+    res.json({ message: "Member accepted by admin", team });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 app.post("/api/events/:id/register", authenticate, async (req: any, res) => {
@@ -273,7 +384,7 @@ async function startServer() {
       });
     }
 
-    app.listen(PORT, "0.0.0.0", () => {
+    httpServer.listen(PORT, "0.0.0.0", () => {
       console.log(`>>> COMMAND CENTER ONLINE: http://0.0.0.0:${PORT}`);
     });
   } catch (err) {

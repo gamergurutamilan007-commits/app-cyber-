@@ -36,10 +36,10 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold tracking-tight mb-6"
+            className="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-[0.9]"
           >
             SRM MCET AI <span className="text-neon-blue">×</span> CYBER <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-electric-purple">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-electric-purple to-neon-blue animate-gradient-x">
               COMMAND CENTER
             </span>
           </motion.h1>
@@ -48,10 +48,10 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light"
           >
-            Build. Secure. Lead. <br />
-            The ultimate student ecosystem for managing events, teams, leaderboards, and knowledge sharing in one centralized digital hub.
+            The definitive student ecosystem for the next generation of cybersecurity experts and AI researchers. 
+            <span className="block mt-2 text-slate-500 text-sm italic">Secure the perimeter. Build the future. Lead the community.</span>
           </motion.p>
 
           <motion.div

@@ -9,6 +9,9 @@ interface User {
   points?: number;
   badges?: string[];
   eventsParticipated?: number;
+  github?: string;
+  linkedin?: string;
+  role: 'user' | 'admin';
 }
 
 interface AuthContextType {

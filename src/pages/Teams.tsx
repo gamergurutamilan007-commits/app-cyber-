@@ -71,7 +71,10 @@ const Teams = () => {
 
   const handleAcceptMember = async (teamId: string, userId: string) => {
     try {
-      const res = await fetch(`/api/teams/${teamId}/accept`, {
+      const isAdmin = user?.role === 'admin';
+      const endpoint = isAdmin ? `/api/admin/teams/${teamId}/accept-member` : `/api/teams/${teamId}/accept`;
+      
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
@@ -123,10 +126,13 @@ const Teams = () => {
                 <p className="text-xs text-slate-500 mb-4 font-mono uppercase tracking-wider">Leader: {team.leader.name}</p>
                 <p className="text-slate-400 text-sm mb-6 flex-grow">{team.description}</p>
 
-                {/* Team Management for Leader */}
-                {user && team.leader._id === user.id && team.requests.length > 0 && (
+                {/* Team Management for Leader or Admin */}
+                {user && (team.leader._id === user.id || user.role === 'admin') && team.requests.length > 0 && (
                   <div className="mb-6 p-3 bg-white/5 rounded-xl border border-white/10">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neon-blue mb-3">Pending Requests</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-neon-blue">Pending Requests</p>
+                      {user.role === 'admin' && team.leader._id !== user.id && <Badge variant="purple">Admin Mode</Badge>}
+                    </div>
                     <div className="space-y-2">
                       {team.requests.map((req) => (
                         <div key={req._id} className="flex items-center justify-between bg-dark-bg/50 p-2 rounded-lg">
@@ -135,10 +141,11 @@ const Teams = () => {
                             <button 
                               onClick={() => handleAcceptMember(team._id, req._id)}
                               className="p-1 hover:bg-emerald-500/20 text-emerald-500 rounded transition-colors"
+                              title="Accept Member"
                             >
                               <Check className="w-3 h-3" />
                             </button>
-                            <button className="p-1 hover:bg-rose-500/20 text-rose-500 rounded transition-colors">
+                            <button className="p-1 hover:bg-rose-500/20 text-rose-500 rounded transition-colors" title="Reject Request">
                               <X className="w-3 h-3" />
                             </button>
                           </div>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bot, Send, Shield, Zap, AlertTriangle, Terminal, Loader2 } from 'lucide-react';
+import { Bot, Send, Shield, Zap, AlertTriangle, Terminal, Loader2, User } from 'lucide-react';
 import { Button, Card, Badge, cn } from '../components/UI';
 import { GoogleGenAI } from "@google/genai";
 
@@ -79,8 +79,8 @@ const AIAssistant = () => {
         </div>
       </div>
 
-      <Card className="flex-grow flex flex-col p-0 overflow-hidden border-white/5 relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-blue to-electric-purple opacity-50" />
+      <Card className="flex-grow flex flex-col p-0 overflow-hidden border-white/5 relative bg-dark-bg/40 backdrop-blur-xl">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-blue via-electric-purple to-neon-blue animate-pulse" />
         
         {/* Messages Area */}
         <div 
@@ -90,34 +90,49 @@ const AIAssistant = () => {
           {messages.map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               className={cn(
                 "flex gap-4 max-w-[85%]",
                 msg.role === 'user' ? "ml-auto flex-row-reverse" : "mr-auto"
               )}
             >
               <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                msg.role === 'user' ? "bg-electric-purple/20" : "bg-neon-blue/20"
+                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-lg",
+                msg.role === 'user' 
+                  ? "bg-electric-purple/20 border-electric-purple/30 text-electric-purple" 
+                  : "bg-neon-blue/20 border-neon-blue/30 text-neon-blue"
               )}>
-                {msg.role === 'user' ? <Terminal className="w-4 h-4 text-electric-purple" /> : <Bot className="w-4 h-4 text-neon-blue" />}
+                {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
               </div>
               <div className={cn(
-                "p-4 rounded-2xl text-sm leading-relaxed",
-                msg.role === 'user' ? "bg-electric-purple/10 border border-electric-purple/20 text-slate-200" : "bg-white/5 border border-white/10 text-slate-300"
+                "p-4 rounded-2xl text-sm leading-relaxed shadow-xl relative group",
+                msg.role === 'user' 
+                  ? "bg-gradient-to-br from-electric-purple/20 to-dark-bg border border-electric-purple/30 text-slate-200 rounded-tr-none" 
+                  : "bg-gradient-to-br from-neon-blue/20 to-dark-bg border border-neon-blue/30 text-slate-300 rounded-tl-none"
               )}>
-                {msg.content}
+                <div className="whitespace-pre-wrap">{msg.content}</div>
+                <div className={cn(
+                  "absolute -bottom-5 text-[9px] font-mono uppercase tracking-tighter opacity-0 group-hover:opacity-50 transition-opacity",
+                  msg.role === 'user' ? "right-0" : "left-0"
+                )}>
+                  {msg.role === 'user' ? 'Local User' : 'AI Core Response'} • {new Date().toLocaleTimeString()}
+                </div>
               </div>
             </motion.div>
           ))}
           {isLoading && (
             <div className="flex gap-4 mr-auto">
-              <div className="w-8 h-8 rounded-lg bg-neon-blue/20 flex items-center justify-center shrink-0">
-                <Loader2 className="w-4 h-4 text-neon-blue animate-spin" />
+              <div className="w-10 h-10 rounded-xl bg-neon-blue/20 border border-neon-blue/30 flex items-center justify-center shrink-0">
+                <Loader2 className="w-5 h-5 text-neon-blue animate-spin" />
               </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-slate-500 text-xs italic">
-                AI is processing neural patterns...
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-slate-500 text-xs italic flex items-center gap-3">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-neon-blue rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 bg-neon-blue rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 bg-neon-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                AI is analyzing neural patterns...
               </div>
             </div>
           )}
