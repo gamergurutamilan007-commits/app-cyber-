@@ -325,6 +325,28 @@ app.post("/api/admin/teams/:id/accept-member", authenticate, async (req: any, re
   }
 });
 
+// Leaderboard API
+app.get("/api/leaderboard", async (req, res) => {
+  try {
+    const users = await User.find()
+      .sort({ points: -1 })
+      .limit(20)
+      .select("name points badges eventsParticipated");
+    
+    const leaderboard = users.map((user, index) => ({
+      rank: index + 1,
+      name: user.name,
+      points: user.points || 0,
+      badges: user.badges || [],
+      eventsParticipated: user.eventsParticipated || 0
+    }));
+    
+    res.json(leaderboard);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/events/:id/register", authenticate, async (req: any, res) => {
   try {
     const { department, year, phone, motivation } = req.body;
@@ -352,7 +374,7 @@ app.get("/api/my-registrations", authenticate, async (req: any, res) => {
 // Seed Events if empty
 const seedEvents = async () => {
   const count = await Event.countDocuments();
-  if (count < 6) {
+  if (count < 12) {
     // Clear existing to avoid duplicates if we're re-seeding
     await Event.deleteMany({});
     await Event.create([
@@ -402,7 +424,7 @@ const seedEvents = async () => {
       },
       {
         title: 'Bug Bounty Blitz: SRM Edition',
-        type: 'Competition',
+        type: 'CTF',
         status: 'Upcoming',
         date: '2026-04-15',
         description: 'Hunt for vulnerabilities in our internal student projects.',
@@ -443,6 +465,72 @@ const seedEvents = async () => {
         timeline: ['10:00 AM - Static Analysis', '01:00 PM - Dynamic Analysis', '03:30 PM - Report Writing'],
         rules: ['Virtual Machine with Flare VM installed', 'Basic C/C++ knowledge'],
         participants: 30
+      },
+      {
+        title: 'AI for Social Good Hackathon',
+        type: 'Hackathon',
+        status: 'Upcoming',
+        date: '2026-06-05',
+        description: 'Develop AI solutions for healthcare, education, and sustainability.',
+        fullDescription: 'Use your AI skills to solve pressing social issues. This hackathon focuses on creating positive impact through technology.',
+        timeline: ['09:00 AM - Theme Reveal', '10:00 AM - Ideation', 'Day 2 03:00 PM - Pitching'],
+        rules: ['Teams of 3-5', 'Must address a social challenge'],
+        participants: 75
+      },
+      {
+        title: 'Blockchain Security Sprint',
+        type: 'Hackathon',
+        status: 'Upcoming',
+        date: '2026-06-20',
+        description: 'Audit smart contracts and build secure decentralized applications.',
+        fullDescription: 'A high-speed hackathon focused on the security of blockchain protocols and smart contracts.',
+        timeline: ['10:00 AM - Briefing', '11:00 AM - Auditing Starts', '05:00 PM - Final Reports'],
+        rules: ['Solidity knowledge required', 'Open source tools only'],
+        participants: 42
+      },
+      {
+        title: 'IoT Security Fundamentals',
+        type: 'Workshop',
+        status: 'Upcoming',
+        date: '2026-07-10',
+        description: 'Learn to secure connected devices and smart home systems.',
+        fullDescription: 'Explore the vulnerabilities in IoT devices and learn how to implement robust security measures.',
+        timeline: ['09:00 AM - IoT Architecture', '11:00 AM - Common Attacks', '02:00 PM - Hardware Lab'],
+        rules: ['Bring your own IoT kit (optional)', 'Basic networking knowledge'],
+        participants: 28
+      },
+      {
+        title: 'Web3 Security Challenge',
+        type: 'CTF',
+        status: 'Upcoming',
+        date: '2026-07-25',
+        description: 'A CTF focused on DeFi vulnerabilities and smart contract exploits.',
+        fullDescription: 'Test your skills in finding vulnerabilities in decentralized finance protocols.',
+        timeline: ['10:00 AM - Challenge Start', '06:00 PM - Submission Deadline'],
+        rules: ['Individual participation', 'No front-running allowed'],
+        participants: 50
+      },
+      {
+        title: 'SRM Cyber Security Day 2026',
+        type: 'Conference',
+        status: 'Upcoming',
+        date: '2026-08-15',
+        description: 'Annual conference featuring talks from industry experts.',
+        fullDescription: 'A day-long event with keynote speakers, panel discussions, and networking opportunities.',
+        timeline: ['09:00 AM - Welcome Address', '10:30 AM - Keynote 1', '01:30 PM - Panel Discussion'],
+        rules: ['Open to all SRM students'],
+        participants: 350
+      },
+      {
+        title: 'Future of AI in Defense',
+        type: 'Conference',
+        status: 'Upcoming',
+        date: '2026-09-05',
+        description: 'Exploring the role of AI in modern warfare and national security.',
+        fullDescription: 'A specialized conference discussing the strategic implications of AI in defense systems.',
+        timeline: ['10:00 AM - Opening Remarks', '11:00 AM - Session 1: Autonomous Systems', '02:00 PM - Session 2: Cyber Warfare'],
+        rules: ['Registration required'],
+        participants: 150
       }
     ]);
   }
@@ -565,9 +653,37 @@ const seedTeams = async () => {
   }
 };
 
+// Seed Users if empty
+const seedUsers = async () => {
+  const count = await User.countDocuments();
+  if (count <= 1) { // Only system user or none
+    const users = [
+      { name: 'Alex "Cipher" Chen', email: 'alex@srm.edu', password: 'password123', points: 2450, badges: ['🏆 CTF Champ', '🛡️ Bug Hunter'], eventsParticipated: 12 },
+      { name: 'Sarah "Neural" Smith', email: 'sarah@srm.edu', password: 'password123', points: 2100, badges: ['🧠 AI Expert', '💻 Code Ninja'], eventsParticipated: 10 },
+      { name: 'Jordan "Root" Miller', email: 'jordan@srm.edu', password: 'password123', points: 1950, badges: ['🔥 Speedster'], eventsParticipated: 8 },
+      { name: 'Elena "Ghost" V', email: 'elena@srm.edu', password: 'password123', points: 1800, badges: ['🕵️ Forensics'], eventsParticipated: 7 },
+      { name: 'Marcus "Void" Lee', email: 'marcus@srm.edu', password: 'password123', points: 1650, badges: ['🛠️ Tool Builder'], eventsParticipated: 6 },
+      { name: 'Priya "Secure" K', email: 'priya@srm.edu', password: 'password123', points: 1500, badges: ['🔐 Crypto', '🛡️ Defender'], eventsParticipated: 5 },
+      { name: 'David "Data" W', email: 'david@srm.edu', password: 'password123', points: 1420, badges: ['📊 Analyst'], eventsParticipated: 5 },
+      { name: 'Sofia "Logic" R', email: 'sofia@srm.edu', password: 'password123', points: 1350, badges: ['🧩 Solver'], eventsParticipated: 4 },
+      { name: 'Kevin "Kernel" J', email: 'kevin@srm.edu', password: 'password123', points: 1280, badges: ['🐧 Linux Guru'], eventsParticipated: 4 },
+      { name: 'Aisha "Cloud" M', email: 'aisha@srm.edu', password: 'password123', points: 1200, badges: ['☁️ Cloud Sec'], eventsParticipated: 3 }
+    ];
+    
+    for (const u of users) {
+      const exists = await User.findOne({ email: u.email });
+      if (!exists) {
+        const hashedPassword = await bcrypt.hash(u.password, 10);
+        await User.create({ ...u, password: hashedPassword });
+      }
+    }
+  }
+};
+
 seedEvents();
 seedCommunity();
 seedTeams();
+seedUsers();
 
 // --- Vite Middleware ---
 async function startServer() {

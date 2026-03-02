@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Users, MapPin, Clock, Filter, Search, X, Loader2 } from 'lucide-react';
 import { Button, Card, Badge, cn } from '../components/UI';
 import { useAuth } from '../contexts/AuthContext';
+import { MOCK_EVENTS } from '../constants';
 
 interface Event {
   _id: string;
+  id?: string;
   title: string;
   type: 'Hackathon' | 'Workshop' | 'CTF' | 'Conference';
   status: 'Live' | 'Upcoming' | 'Past';
@@ -18,7 +20,7 @@ interface Event {
 }
 
 const Events = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>(MOCK_EVENTS as any);
   const [myRegistrations, setMyRegistrations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>('All');
@@ -36,7 +38,9 @@ const Events = () => {
       ]);
       
       const eventsData = await eventsRes.json();
-      setEvents(eventsData);
+      if (eventsData && eventsData.length > 0) {
+        setEvents(eventsData);
+      }
       
       if (regRes && regRes.ok) {
         const regData = await regRes.json();
@@ -117,7 +121,7 @@ const Events = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredEvents.map((event) => (
             <motion.div
-              key={event._id}
+              key={event._id || event.id}
               layout
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -147,14 +151,14 @@ const Events = () => {
                   <Button onClick={() => setSelectedEvent(event)} className="w-full">
                     View Details
                   </Button>
-                  {user && getRegStatus(event._id) && (
+                  {user && (getRegStatus(event._id) || getRegStatus(event.id!)) && (
                     <div className={cn(
                       "text-[10px] font-bold uppercase tracking-widest text-center py-1 rounded border",
-                      getRegStatus(event._id) === 'Approved' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" :
-                      getRegStatus(event._id) === 'Pending' ? "text-amber-500 bg-amber-500/10 border-amber-500/20" :
+                      (getRegStatus(event._id) || getRegStatus(event.id!)) === 'Approved' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" :
+                      (getRegStatus(event._id) || getRegStatus(event.id!)) === 'Pending' ? "text-amber-500 bg-amber-500/10 border-amber-500/20" :
                       "text-rose-500 bg-rose-500/10 border-rose-500/20"
                     )}>
-                      Status: {getRegStatus(event._id) === 'Approved' ? 'Registered' : getRegStatus(event._id)}
+                      Status: {(getRegStatus(event._id) || getRegStatus(event.id!)) === 'Approved' ? 'Registered' : (getRegStatus(event._id) || getRegStatus(event.id!))}
                     </div>
                   )}
                 </div>
@@ -238,7 +242,7 @@ const Events = () => {
                       </div>
                     )}
 
-                    {!getRegStatus(selectedEvent._id) ? (
+                    {!(getRegStatus(selectedEvent._id) || getRegStatus(selectedEvent.id!)) ? (
                       <Button 
                         onClick={() => setIsRegistering(true)} 
                         className="w-full mt-4" 
@@ -250,9 +254,9 @@ const Events = () => {
                     ) : (
                       <div className={cn(
                         "w-full mt-4 py-3 rounded-xl border text-center font-bold uppercase tracking-widest",
-                        getRegStatus(selectedEvent._id) === 'Approved' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" : "text-amber-500 bg-amber-500/10 border-amber-500/20"
+                        (getRegStatus(selectedEvent._id) || getRegStatus(selectedEvent.id!)) === 'Approved' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" : "text-amber-500 bg-amber-500/10 border-amber-500/20"
                       )}>
-                        {getRegStatus(selectedEvent._id) === 'Approved' ? 'Successfully Registered' : 'Registration Pending Approval'}
+                        {(getRegStatus(selectedEvent._id) || getRegStatus(selectedEvent.id!)) === 'Approved' ? 'Successfully Registered' : 'Registration Pending Approval'}
                       </div>
                     )}
                   </div>
