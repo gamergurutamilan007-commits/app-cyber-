@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, LayoutDashboard, Calendar, Users, Trophy, MessageSquare, User, Bot, LogOut, Menu, X, Clock } from 'lucide-react';
+import { Shield, LayoutDashboard, Calendar, Users, Trophy, MessageSquare, User, Bot, LogOut, Menu, X, Clock, Cpu, Zap, Fingerprint } from 'lucide-react';
 import { cn, Button } from './UI';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'motion/react';
@@ -46,14 +46,15 @@ export const Navbar = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center group-hover:bg-neon-cyan/20 transition-all shadow-[0_0_15px_rgba(0,245,255,0.1)]">
-                <Shield className="w-6 h-6 text-neon-cyan" />
+              <div className="w-12 h-12 rounded-xl bg-dark-surface border border-neon-cyan/40 flex items-center justify-center group-hover:border-neon-cyan/70 transition-all shadow-[0_0_20px_rgba(0,245,255,0.2)] relative overflow-hidden">
+                <span className="text-neon-cyan font-black text-xl tracking-tighter drop-shadow-[0_0_8px_rgba(0,245,255,0.6)]">SRM</span>
+                <div className="absolute inset-0 bg-gradient-to-tr from-neon-cyan/10 to-transparent" />
               </div>
-              <div className="absolute -inset-1 bg-neon-cyan/20 blur opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
+              <div className="absolute -inset-1 bg-neon-cyan/20 blur opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight leading-none text-text-primary">
-                SRM MCET
+              <span className="font-bold text-base tracking-tight leading-none text-text-primary">
+                MCET
               </span>
               <span className="text-[10px] font-bold text-neon-cyan uppercase tracking-widest leading-none mt-1">
                 AI × CYBER
@@ -178,11 +179,12 @@ export const Footer = () => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-2">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center shadow-[0_0_15px_rgba(0,245,255,0.1)]">
-              <Shield className="w-6 h-6 text-neon-cyan" />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-dark-surface border border-neon-cyan/40 flex items-center justify-center shadow-[0_0_25px_rgba(0,245,255,0.2)] relative overflow-hidden">
+              <span className="text-neon-cyan font-black text-2xl tracking-tighter drop-shadow-[0_0_10px_rgba(0,245,255,0.6)]">SRM</span>
+              <div className="absolute inset-0 bg-neon-cyan/10 blur-sm" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-text-primary">SRM MCET AI × CYBER</span>
+            <span className="font-bold text-2xl tracking-tight text-text-primary">MCET AI × CYBER</span>
           </div>
           <p className="text-text-secondary max-w-sm text-sm leading-relaxed">
             The ultimate digital command center for the next generation of cybersecurity experts and AI researchers at SRM MCET. Build, secure, and lead the future.

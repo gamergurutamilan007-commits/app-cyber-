@@ -80,13 +80,13 @@ const AIAssistant = () => {
         </div>
       </div>
 
-      <Card className="flex-grow flex flex-col p-0 overflow-hidden border-white/5 relative bg-dark-surface/40 backdrop-blur-2xl glass-panel">
+      <Card className="flex-grow flex flex-col p-0 overflow-hidden border-white/5 relative bg-dark-surface/40 backdrop-blur-2xl glass-panel min-h-[600px]">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-cyan via-electric-purple to-neon-cyan animate-pulse shadow-[0_0_10px_rgba(0,245,255,0.5)]" />
         
         {/* Messages Area */}
         <div 
           ref={scrollRef}
-          className="flex-grow overflow-y-auto p-8 space-y-8 custom-scrollbar scroll-smooth"
+          className="flex-grow overflow-y-auto p-8 space-y-10 custom-scrollbar scroll-smooth"
         >
           {messages.map((msg, i) => (
             <motion.div
@@ -94,28 +94,28 @@ const AIAssistant = () => {
               initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
               animate={{ opacity: 1, x: 0 }}
               className={cn(
-                "flex gap-5 max-w-[90%]",
+                "flex gap-6 max-w-[95%] md:max-w-[85%]",
                 msg.role === 'user' ? "ml-auto flex-row-reverse" : "mr-auto"
               )}
             >
               <div className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500",
+                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500",
                 msg.role === 'user' 
                   ? "bg-electric-purple/10 border-electric-purple/30 text-electric-purple shadow-[0_0_15px_rgba(139,92,246,0.1)]" 
                   : "bg-neon-cyan/10 border-neon-cyan/30 text-neon-cyan shadow-[0_0_15px_rgba(0,245,255,0.1)]"
               )}>
-                {msg.role === 'user' ? <User className="w-6 h-6" /> : <Bot className="w-6 h-6" />}
+                {msg.role === 'user' ? <User className="w-7 h-7" /> : <Bot className="w-7 h-7" />}
               </div>
               <div className={cn(
-                "p-6 rounded-3xl text-sm leading-relaxed shadow-2xl relative group transition-all duration-300",
+                "p-8 rounded-[2rem] text-base leading-relaxed shadow-2xl relative group transition-all duration-300",
                 msg.role === 'user' 
-                  ? "bg-gradient-to-br from-electric-purple/10 to-dark-surface/80 border border-electric-purple/20 text-text-primary rounded-tr-none hover:border-electric-purple/40" 
-                  : "bg-gradient-to-br from-neon-cyan/10 to-dark-surface/80 border border-neon-cyan/20 text-text-primary rounded-tl-none hover:border-neon-cyan/40"
+                  ? "bg-gradient-to-br from-electric-purple/15 to-dark-surface/90 border border-electric-purple/20 text-text-primary rounded-tr-none hover:border-electric-purple/40" 
+                  : "bg-gradient-to-br from-neon-cyan/15 to-dark-surface/90 border border-neon-cyan/20 text-text-primary rounded-tl-none hover:border-neon-cyan/40"
               )}>
-                <div className="whitespace-pre-wrap font-mono opacity-90">{msg.content}</div>
+                <div className="whitespace-pre-wrap font-sans opacity-95">{msg.content}</div>
                 <div className={cn(
-                  "absolute -bottom-6 text-[9px] font-mono uppercase tracking-[0.2em] opacity-0 group-hover:opacity-40 transition-opacity",
-                  msg.role === 'user' ? "right-0" : "left-0"
+                  "absolute -bottom-7 text-[10px] font-mono uppercase tracking-[0.2em] opacity-0 group-hover:opacity-40 transition-opacity",
+                  msg.role === 'user' ? "right-4" : "left-4"
                 )}>
                   {msg.role === 'user' ? 'LOCAL_USER_ID' : 'NEURAL_CORE_RESPONSE'} • {new Date().toLocaleTimeString()}
                 </div>
@@ -123,46 +123,57 @@ const AIAssistant = () => {
             </motion.div>
           ))}
           {isLoading && (
-            <div className="flex gap-5 mr-auto">
-              <div className="w-12 h-12 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,245,255,0.1)]">
-                <Loader2 className="w-6 h-6 text-neon-cyan animate-spin" />
+            <div className="flex gap-6 mr-auto">
+              <div className="w-14 h-14 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,245,255,0.1)]">
+                <Loader2 className="w-7 h-7 text-neon-cyan animate-spin" />
               </div>
-              <div className="p-6 rounded-3xl bg-dark-surface/60 border border-white/5 text-text-secondary text-xs italic flex items-center gap-4 shadow-xl">
-                <div className="flex gap-1.5">
-                  <span className="w-2 h-2 bg-neon-cyan rounded-full animate-bounce shadow-[0_0_8px_rgba(0,245,255,0.5)]" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-neon-cyan rounded-full animate-bounce shadow-[0_0_8px_rgba(0,245,255,0.5)]" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-neon-cyan rounded-full animate-bounce shadow-[0_0_8px_rgba(0,245,255,0.5)]" style={{ animationDelay: '300ms' }} />
+              <div className="p-8 rounded-[2rem] bg-dark-surface/60 border border-white/5 text-text-secondary text-sm italic flex items-center gap-6 shadow-xl">
+                <div className="flex gap-2">
+                  <span className="w-2.5 h-2.5 bg-neon-cyan rounded-full animate-bounce shadow-[0_0_8px_rgba(0,245,255,0.5)]" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2.5 h-2.5 bg-neon-cyan rounded-full animate-bounce shadow-[0_0_8px_rgba(0,245,255,0.5)]" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2.5 h-2.5 bg-neon-cyan rounded-full animate-bounce shadow-[0_0_8px_rgba(0,245,255,0.5)]" style={{ animationDelay: '300ms' }} />
                 </div>
-                <span className="font-mono uppercase tracking-widest text-[10px]">Analyzing neural patterns...</span>
+                <span className="font-mono uppercase tracking-widest text-[11px]">Analyzing neural patterns...</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Input Area */}
-        <div className="p-6 border-t border-white/5 bg-dark-surface/60 backdrop-blur-3xl">
-          <form onSubmit={handleSend} className="flex gap-4 relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neon-cyan opacity-50">
-              <Terminal className="w-4 h-4" />
+        <div className="p-8 border-t border-white/5 bg-dark-surface/80 backdrop-blur-3xl">
+          <form onSubmit={handleSend} className="flex gap-6 relative items-end">
+            <div className="absolute left-6 bottom-8 text-neon-cyan opacity-50">
+              <Terminal className="w-5 h-5" />
             </div>
-            <input
-              type="text"
+            <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={mode === 'Chat' ? "Input query for neural core..." : "Paste encrypted logs for threat analysis..."}
-              className="flex-grow bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-mono focus:outline-none focus:border-neon-cyan focus:bg-neon-cyan/5 transition-all text-text-primary placeholder:text-text-secondary/30"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend(e as any);
+                }
+              }}
+              placeholder={mode === 'Chat' ? "Input query for neural core... (Shift+Enter for new line)" : "Paste encrypted logs for threat analysis..."}
+              className="flex-grow bg-white/5 border border-white/10 rounded-3xl pl-16 pr-6 py-5 text-base font-sans focus:outline-none focus:border-neon-cyan focus:bg-neon-cyan/5 transition-all text-text-primary placeholder:text-text-secondary/30 resize-none min-h-[80px] max-h-[200px] custom-scrollbar"
+              rows={1}
             />
-            <Button type="submit" variant="cyan" disabled={isLoading} className="shrink-0 px-8 rounded-2xl shadow-[0_0_20px_rgba(0,245,255,0.2)]">
-              <Send className="w-5 h-5" />
+            <Button 
+              type="submit" 
+              variant="cyan" 
+              disabled={isLoading || !input.trim()} 
+              className="shrink-0 h-[80px] w-[80px] rounded-3xl shadow-[0_0_20px_rgba(0,245,255,0.2)] flex items-center justify-center p-0"
+            >
+              <Send className="w-6 h-6" />
             </Button>
           </form>
-          <div className="flex justify-between items-center mt-4 px-2">
-            <p className="text-[9px] text-text-secondary/40 font-mono uppercase tracking-[0.3em]">
+          <div className="flex justify-between items-center mt-6 px-4">
+            <p className="text-[10px] text-text-secondary/40 font-mono uppercase tracking-[0.3em]">
               Secure Channel • End-to-End Encrypted • Neural Core v2.5
             </p>
-            <div className="flex gap-2">
-              <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse shadow-[0_0_5px_rgba(57,255,20,0.5)]" />
-              <span className="text-[9px] text-neon-green font-mono uppercase tracking-widest">Core Online</span>
+            <div className="flex gap-3">
+              <div className="w-2.5 h-2.5 rounded-full bg-neon-green animate-pulse shadow-[0_0_8px_rgba(57,255,20,0.5)]" />
+              <span className="text-[10px] text-neon-green font-mono uppercase tracking-widest">Core Online</span>
             </div>
           </div>
         </div>

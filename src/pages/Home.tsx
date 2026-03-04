@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Shield, Zap, Target, Terminal, Cpu, Network, Globe, Activity } from 'lucide-react';
+import { ArrowRight, Shield, Zap, Target, Terminal, Cpu, Network, Globe, Activity, Fingerprint } from 'lucide-react';
 import { Button, Card, Badge } from '../components/UI';
 import { Link } from 'react-router-dom';
 
@@ -106,10 +106,13 @@ const Home = () => {
             <div className="relative w-full aspect-square max-w-[500px] mx-auto">
               {/* Central Core */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-48 h-48 rounded-full bg-neon-cyan/5 border border-neon-cyan/20 animate-pulse-slow flex items-center justify-center">
-                  <div className="w-32 h-32 rounded-full bg-neon-cyan/10 border border-neon-cyan/40 animate-spin-slow flex items-center justify-center">
-                    <Shield className="w-16 h-16 text-neon-cyan drop-shadow-[0_0_15px_rgba(0,245,255,0.5)]" />
+                <div className="w-48 h-48 rounded-3xl bg-dark-surface/50 backdrop-blur-xl border border-neon-cyan/40 animate-pulse-slow flex items-center justify-center shadow-[0_0_60px_rgba(0,245,255,0.3)] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 via-transparent to-electric-purple/20 animate-pulse" />
+                  <div className="relative z-10 flex flex-col items-center">
+                    <span className="text-neon-cyan font-black text-6xl tracking-tighter drop-shadow-[0_0_20px_rgba(0,245,255,0.8)]">SRM</span>
+                    <span className="text-text-primary font-bold text-sm tracking-[0.3em] mt-2 opacity-80">MCET</span>
                   </div>
+                  <div className="absolute inset-0 bg-neon-cyan/5 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Lock, Mail, Loader2 } from 'lucide-react';
+import { Shield, Lock, Mail, Loader2, Cpu, Zap, Fingerprint } from 'lucide-react';
 import { Button, Card } from '../components/UI';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -31,8 +31,9 @@ const Login = () => {
       <Card glow variant="cyan" className="border-neon-cyan/20 bg-dark-surface/40 backdrop-blur-2xl p-10 relative overflow-hidden glass-panel">
         <div className="absolute top-0 left-0 w-full h-1 bg-neon-cyan" />
         <div className="text-center mb-10">
-          <div className="w-24 h-24 rounded-3xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(0,245,255,0.1)] relative group">
-            <Shield className="w-12 h-12 text-neon-cyan drop-shadow-[0_0_10px_rgba(0,245,255,0.5)] group-hover:scale-110 transition-transform" />
+          <div className="w-28 h-28 rounded-3xl bg-dark-surface border border-neon-cyan/40 flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(0,245,255,0.2)] relative group overflow-hidden">
+            <span className="text-neon-cyan font-black text-4xl tracking-tighter drop-shadow-[0_0_15px_rgba(0,245,255,0.7)] group-hover:scale-110 transition-transform relative z-10">SRM</span>
+            <div className="absolute inset-0 bg-neon-cyan/10 animate-pulse" />
             <div className="absolute inset-0 bg-neon-cyan/5 blur-xl rounded-full" />
           </div>
           <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase">ACCESS <span className="text-neon-cyan">COMMAND</span></h1>
